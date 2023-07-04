@@ -3,9 +3,9 @@ import pickle
 import sys
 from io import StringIO
 from typing import List, Union
-from shipment.constant import *
+from shipment.constants import *
 import boto3
-from shipment.exception import shippingException
+from shipment.exceptions import shippingException
 from botocore.exceptions import ClientError
 from mypy_boto3_s3.service_resource import Bucket
 from pandas import DataFrame, read_csv

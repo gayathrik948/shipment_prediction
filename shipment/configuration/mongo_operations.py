@@ -131,7 +131,7 @@ if __name__ == "__main__":
         mongo_db_op = MongoDBOperation()
         db_name = DB_NAME
         collection_name = COLLECTION_NAME
-        df = pd.read_csv("shipping_data.csv")
+        df = pd.read_csv("shipping.csv")
         mongo_db_op.insert_dataframe_as_record(df, db_name, collection_name)
         logging.info("dataframe inserted successfully on database")
         print("dataframe inserted successfully on database")

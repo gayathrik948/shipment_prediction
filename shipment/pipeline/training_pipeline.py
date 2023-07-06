@@ -81,17 +81,24 @@ class TrainingPipeline:
         except Exception as e:
             raise shippingException(e, sys)
 
+    def start_model_pusher(
+            self,
+            model_trainer_artifacts: ModelTrainerArtifacts,
+            s3: S3Operation,
+            data_transformation_artifacts: DataTransformationArtifacts,
+    ) -> ModelPusherArtifacts:
+        try:
+            model_pusher = ModelPusher(
+                model_pusher_config=self.model_pusher_config,
+                model_trainer_artifacts=model_trainer_artifacts,
+                s3=s3,
+                data_transformation_artifacts=data_transformation_artifacts,
+            )
+            model_pusher_artifact = model_pusher.initiate_model_pusher()
+            return model_pusher_artifact
 
-    # def start_model_pusher(self, model_trainer_artifacts:ModelTrainerArtifacts)->ModelPusherArtifacts:
-    #     try:
-    #         model_pusher = ModelPusher(model_trainer_artifact=model_trainer_artifacts,
-    #                                    model_pusher_config=self.model_pusher_config,
-    #                                    S3=self.S3)
-    #         model_pusher_artifacts = model_pusher.initiate_model_pusher()
-    #         return model_pusher_artifacts
-    #     except Exception as e:
-    #         raise shippingException(e, sys)
-
+        except Exception as e:
+            raise shippingException(e, sys) from e
 
     def run_pipeline(self):
         try:
@@ -103,10 +110,12 @@ class TrainingPipeline:
                                                                      data_ingestion_artifacts=data_ingestion_artifact)
             if not model_evaluation_artifacts.is_model_accepted:
                 print("model not accepted")
-            else:
-                print("model accepted")
-
-
+                return None
+            model_pusher_artifact = self.start_model_pusher(
+                model_trainer_artifacts=model_trainer_artifacts,
+                s3=self.S3,
+                data_transformation_artifacts=data_transformation_artifacts,
+            )
 
         except Exception as e:
             raise shippingException(e,sys)

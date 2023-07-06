@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from shipment.constants import *
 from shipment.utils.main_utils import *
+from shipment.configuration.s3_operations import S3Operation
 from shipment.logger import logging
 from shipment.exceptions import shippingException
 import os
@@ -66,4 +67,19 @@ class ModelTrainerConfig:
         self.MODEL_TRAINER_ARTIFACT_DIR:str = os.path.join(from_root(),
                                                            ARTIFACTS_DIR, MODEL_TRAINER_ARTIFACTS_DIR)
         self.TRAINED_MODEL_FILE_PATH:str = os.path.join(self.MODEL_TRAINER_ARTIFACT_DIR, MODEL_FILE_NAME)
-        
+
+
+@dataclass
+class ModelEvaluationConfig:
+    def __init__(self):
+        self.UTILS = MainUtils()
+        self.S3_OPERATIONS = S3Operation()
+
+
+@dataclass
+class ModelPusherConfig:
+    def __init__(self):
+        self.S3_BUCKET_NAME = BUCKET_NAME
+        self.S3_MODEL_PATH:str = os.path.join(S3_MODEL_NAME)
+
+

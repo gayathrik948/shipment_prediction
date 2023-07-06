@@ -7,6 +7,8 @@ TIMESTAMP: str = datetime.now().strftime("%m_%d_%Y_%H_%M_%S")
 MODEL_CONFIG_FILE = "config/model.yaml"
 SCHEMA_FILE_PATH = "config/schema.yaml"
 
+# DB_URL = "mongodb+srv://gayathrik948:ujCjaZVF5uGIlzrP@mlproject.d8vcic5.mongodb.net/?retryWrites=true&w=majority"
+
 DB_URL = "mongodb://localhost:27017"
 
 TARGET_COLUMN = "Cost"
@@ -39,7 +41,7 @@ MODEL_FILE_NAME = "shipping_price_model.pkl"
 MODEL_SAVE_FORMAT = ".pkl"
 
 
-BUCKET_NAME = "shipment-model-io-files"
+BUCKET_NAME = "shipment-models-file1"
 S3_MODEL_NAME = "shipping_price_model.pkl"
 
 

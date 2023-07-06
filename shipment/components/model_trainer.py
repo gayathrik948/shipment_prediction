@@ -19,17 +19,7 @@ class CostModel:
         self.trained_model_object = trained_model_object
 
     def predict(self, X) -> float:
-
-        """
-        Method Name :   predict
-
-        Description :   This method predicts the data.
-
-        Output      :   Predictions
-        """
-        logging.info("Entered predict method the class")
         try:
-            # Using the trained model to get predictions
             transformed_feature = self.preprocessing_object.transform(X)
             logging.info("Used the trained model to get predictions")
 
@@ -54,7 +44,7 @@ class ModelTrainer:
         self.data_transformation_artifact = data_transformation_artifact
         self.model_trainer_config = model_trainer_config
 
-    # This method is used to get the trained models
+
     def get_trained_models(
             self, x_data: DataFrame, y_data: DataFrame
     ) -> List[Tuple[float, object, str]]:
@@ -94,15 +84,6 @@ class ModelTrainer:
 
     # This method is used to initialize model training
     def initiate_model_trainer(self) -> ModelTrainerArtifacts:
-
-        """
-        Method Name :   initiate_model_trainer
-
-        Description :   This method initiates model training.
-
-        Output      :   List of trained models
-        """
-        logging.info("Entered initiate_model_trainer nethod of ModelTrainer class")
         try:
             # Creating Model trainer artifacts directory
             os.makedirs(
@@ -155,10 +136,6 @@ class ModelTrainer:
 
 
             if best_model_score >= base_model_score:
-                # self.model_trainer_config.UTILS.update_model_score(best_model_score)
-                # logger.info("Updating model score in yaml file")
-
-                # Loading cost model object with preprocessor and model
                 cost_model = CostModel(preprocessing_obj, best_model)
                 logging.info(
                     "Created cost model object with preprocessor and model"

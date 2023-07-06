@@ -1,9 +1,15 @@
-from shipment.entity.config_entity import (DataIngestionConfig, DataValidationConfig, DataTransformationConfig, ModelTrainerConfig)
-from shipment.entity.artifacts_entity import (DataIngestionArtifacts, DataValidationArtifacts, DataTransformationArtifacts, ModelTrainerArtifacts)
+from shipment.entity.config_entity import (DataIngestionConfig, DataValidationConfig, DataTransformationConfig,
+                                           ModelTrainerConfig, ModelEvaluationConfig, ModelPusherConfig)
+from shipment.entity.artifacts_entity import (DataIngestionArtifacts, DataValidationArtifacts,
+                                              DataTransformationArtifacts, ModelTrainerArtifacts,
+                                              ModelEvaluationArtifacts, ModelPusherArtifacts)
 from shipment.components.data_ingestion import DataIngestion
 from shipment.components.data_validation import DataValidation
 from shipment.components.data_transformation import DataTransformation
 from shipment.components.model_trainer import ModelTrainer
+from shipment.components.model_evaluation import ModelEvaluation
+from shipment.components.model_pusher import ModelPusher
+from shipment.configuration.s3_operations import S3Operation
 import sys
 from shipment.exceptions import shippingException
 from shipment.logger import logging
@@ -15,7 +21,10 @@ class TrainingPipeline:
         self.data_validation_config = DataValidationConfig()
         self.data_transformation_config = DataTransformationConfig()
         self.model_trainer_config = ModelTrainerConfig()
+        self.model_pusher_config = ModelPusherConfig()
+        self.model_evaluation_config = ModelEvaluationConfig()
         self.mongo_op = MongoDBOperation()
+        self.S3 = S3Operation()
 
     def start_data_ingestion(self)->DataIngestionArtifacts:
         try:
@@ -61,11 +70,43 @@ class TrainingPipeline:
             raise shippingException(e, sys)
 
 
+    def start_model_evaluation(self, model_trainer_artifacts:ModelTrainerArtifacts,
+                               data_ingestion_artifacts:DataIngestionArtifacts)->ModelEvaluationArtifacts:
+        try:
+            model_evaluation = ModelEvaluation(model_trainer_arifacts=model_trainer_artifacts,
+                                               model_evaluation_config=self.model_evaluation_config,
+                                               data_ingestion_artifacts=data_ingestion_artifacts)
+            model_evaluation_artifacts = model_evaluation.initiate_model_evaluation()
+            return model_evaluation_artifacts
+        except Exception as e:
+            raise shippingException(e, sys)
+
+
+    # def start_model_pusher(self, model_trainer_artifacts:ModelTrainerArtifacts)->ModelPusherArtifacts:
+    #     try:
+    #         model_pusher = ModelPusher(model_trainer_artifact=model_trainer_artifacts,
+    #                                    model_pusher_config=self.model_pusher_config,
+    #                                    S3=self.S3)
+    #         model_pusher_artifacts = model_pusher.initiate_model_pusher()
+    #         return model_pusher_artifacts
+    #     except Exception as e:
+    #         raise shippingException(e, sys)
+
+
     def run_pipeline(self):
         try:
             data_ingestion_artifact = self.start_data_ingestion()
             data_validation_artifact= self.start_data_validation(data_ingestion_artifacts=data_ingestion_artifact)
             data_transformation_artifacts = self.start_data_transformation(data_ingestion_artifacts=data_ingestion_artifact)
             model_trainer_artifacts = self.start_model_training(data_transformation_artifacts=data_transformation_artifacts)
+            model_evaluation_artifacts = self.start_model_evaluation(model_trainer_artifacts=model_trainer_artifacts,
+                                                                     data_ingestion_artifacts=data_ingestion_artifact)
+            if not model_evaluation_artifacts.is_model_accepted:
+                print("model not accepted")
+            else:
+                print("model accepted")
+
+
+
         except Exception as e:
             raise shippingException(e,sys)
